@@ -55,7 +55,6 @@ pipeline {
       steps {
         // Giả sử chạy Jenkins trên chính máy deploy
         sh """
-          cd backend
           docker-compose down
           # cập nhật image tags trong docker-compose.yml nếu cần
           docker-compose up -d --build
