@@ -11,6 +11,8 @@ services:
       MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
+    networks:
+      - webshop_net
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -25,6 +27,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - webshop_net
     ports:
       - "8000:8000"
     environment:
@@ -36,6 +40,8 @@ services:
   php:
     build:
       context: backend/php_service
+    networks:
+      - webshop_net
     volumes:
       - ./backend/php_service/public:/var/www/html/public
       - ./backend/php_service/src:/var/www/html/src
@@ -49,10 +55,14 @@ services:
       context: frontend
     ports:
       - "3000:80"
+    networks:
+      - webshop_net
     depends_on:
       - gateway
   gateway:
     image: nginx:alpine
+    networks:
+      - webshop_net
     volumes:
       - ./gateway/default.conf:/etc/nginx/conf.d
     ports:
