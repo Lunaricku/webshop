@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: userdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uuser", "-ppassword"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  python:
+    build:
+      context: backend/python_service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=userdb
+      - DB_PORT=3306
+  php:
+    build:
+      context: backend/php_service
+    volumes:
+      - ./backend/php_service/public:/var/www/html/public
+      - ./backend/php_service/src:/var/www/html/src
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+  frontend:
+    build:
+      context: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+  gateway:
+    image: nginx:alpine
+    volumes:
+      - ./gateway/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - python
+      - php
+
+volumes:
+  mysql_data:

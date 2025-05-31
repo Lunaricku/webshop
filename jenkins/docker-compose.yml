@@ -1,0 +1,29 @@
+# version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: always
+    user: root
+    ports:
+      - "9080:8080"
+      - "50000:50000"  # Port cho agent slave
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Cho phép Jenkins chạy Docker
+
+volumes:
+  jenkins_home: 
+
+# services:
+#   jenkins:
+#     image: jenkins/jenkins:lts
+#     ports:
+#       - "8080:8080"
+#     volumes:
+#       - jenkins_home:/var/jenkins_home
+#   ssh-agent:
+#     image: jenkins/ssh-agent
+# volumes:
+#   jenkins_home:
