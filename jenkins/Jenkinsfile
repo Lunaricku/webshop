@@ -12,8 +12,8 @@ pipeline {
     stage('Checkout') {
       steps {
         git(
-          url: 'git@github.com:your-org/your-repo.git',
-          credentialsId: 'github-ssh-key'
+          url: 'https://github.com/Lunaricku/webshop.git',
+          branch: 'test',
         )
       }
     }
