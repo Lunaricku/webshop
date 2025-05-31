@@ -70,6 +70,10 @@ services:
     depends_on:
       - python
       - php
+      
+networks:
+  webshop_net:
+    external: true
 
 volumes:
   mysql_data:
