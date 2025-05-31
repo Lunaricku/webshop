@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    REGISTRY = "localhost:5000"       // nếu có local registry
+    // REGISTRY = "localhost:5000"       // nếu có local registry
     IMAGE_PY = "${REGISTRY}/python-service"
     IMAGE_PHP = "${REGISTRY}/php-service"
     IMAGE_FE = "${REGISTRY}/frontend"
