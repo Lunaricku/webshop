@@ -64,8 +64,8 @@ services:
       - webshop_net
     volumes:
       - shared_workspace:/jenkins_workspace
-      - /jenkins_workspace/test/gateway/default.conf:/etc/nginx/conf.d/default.conf
-      # - ./gateway/default.conf:/etc/nginx/conf.d/default.conf
+      # - /jenkins_workspace/test/gateway/default.conf:/etc/nginx/conf.d/default.conf
+      - ./gateway/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
     depends_on:
@@ -78,4 +78,3 @@ networks:
 
 volumes:
   mysql_data:
-  shared_workspace:
