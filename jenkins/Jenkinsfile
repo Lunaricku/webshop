@@ -1,64 +1,41 @@
 pipeline {
   agent any
 
-  environment {
-    // REGISTRY = "localhost:5000"       // nếu có local registry
-    IMAGE_PY = "${REGISTRY}/python-service"
-    IMAGE_PHP = "${REGISTRY}/php-service"
-    IMAGE_FE = "${REGISTRY}/frontend"
-  }
-
   stages {
     stage('Checkout') {
       steps {
         git(
           url: 'https://github.com/Lunaricku/webshop.git',
-          branch: 'test',
+          branch: 'test'
         )
       }
     }
 
-    stage('Build & Test Backend Python') {
+    stage('Deploy Database') {
       steps {
-        dir('backend/python_service') {
-          sh 'docker build -t $IMAGE_PY:${BUILD_NUMBER} .'
-        }
-      }
-    }
-
-    stage('Build & Test Backend PHP') {
-      steps {
-        dir('backend/php_service') {
-          sh 'docker build -t $IMAGE_PHP:${BUILD_NUMBER} .'
-        }
-      }
-    }
-
-    stage('Build Frontend') {
-      steps {
-        dir('frontend') {
-          sh 'docker build -t $IMAGE_FE:${BUILD_NUMBER} .'
-        }
-      }
-    }
-
-    stage('Push Images') {
-      steps {
-        // Nếu dùng local registry, push ở đây; nếu không, có thể skip
-        sh 'docker push $IMAGE_PY:${BUILD_NUMBER}'
-        sh 'docker push $IMAGE_PHP:${BUILD_NUMBER}'
-        sh 'docker push $IMAGE_FE:${BUILD_NUMBER}'
-      }
-    }
-
-    stage('Deploy to On-Prem') {
-      steps {
-        // Giả sử chạy Jenkins trên chính máy deploy
         sh """
-          docker-compose down
-          # cập nhật image tags trong docker-compose.yml nếu cần
-          docker-compose up -d --build
+          docker-compose -f docker-compose.db.yml down -v
+          docker-compose -f docker-compose.db.yml up -d
         """
+      }
+    }
+
+    stage('Deploy Python Service') {
+      steps {
+        sh """
+          docker-compose -f docker-compose.python.yml down
+          docker-compose -f docker-compose.python.yml up -d --build
+        """
+      }
+    }
+
+    stage('Deploy PHP + Frontend + Gateway') {
+      steps {
+        sh """
+          docker-compose -f docker-compose.php.yml down
+          docker-compose -f docker-compose.php.yml up -d --build
+        """
+        sh 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"'
       }
     }
   }
