@@ -35,7 +35,7 @@ pipeline {
           docker-compose -f docker-compose.php.yml down
           docker-compose -f docker-compose.php.yml up -d --build
         """
-        sh 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"'
+        sh 'docker ps --format "table {{$Names}}\t{{$Image}}\t{{$Ports}}"'
       }
     }
   }
