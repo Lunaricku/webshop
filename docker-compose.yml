@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
@@ -10,15 +12,16 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - webshop_net
+      - jenkins-net
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uuser", "-ppassword"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uuser -ppassword"]
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 30s
+
   python:
     build:
       context: backend/python_service
@@ -26,7 +29,7 @@ services:
       mysql:
         condition: service_healthy
     networks:
-      - webshop_net
+      - jenkins-net
     ports:
       - "8000:8000"
     environment:
@@ -35,44 +38,46 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=userdb
       - DB_PORT=3306
+
   php:
     build:
       context: backend/php_service
     networks:
-      - webshop_net
+      - jenkins-net
     volumes:
-      - ./backend/php_service/public:/var/www/html/public
-      - ./backend/php_service/src:/var/www/html/src
+      - ${PWD}/backend/php_service/public:/var/www/html/public
+      - ${PWD}/backend/php_service/src:/var/www/html/src
     ports:
       - "8080:80"
     depends_on:
       mysql:
         condition: service_healthy
+
   frontend:
     build:
       context: frontend
     ports:
       - "3000:80"
     networks:
-      - webshop_net
+      - jenkins-net
     depends_on:
       - gateway
+
   gateway:
     image: nginx:alpine
     networks:
-      - webshop_net
+      - jenkins-net
     volumes:
-      - ./gateway/default.conf:/etc/nginx/conf.d/default.conf
+      - ${PWD}/gateway/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
     depends_on:
       - python
       - php
-      
+
 networks:
-  webshop_net:
+  jenkins-net:
     external: true
 
 volumes:
   mysql_data:
-  shared_workspace:
