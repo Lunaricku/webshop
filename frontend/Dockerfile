@@ -7,6 +7,7 @@ COPY . .
 RUN npm run build
 
 # Serve bằng nginx
-# FROM nginx:alpine
-# COPY --from=0 /app/build /usr/share/nginx/html
-# EXPOSE 80
+FROM nginx:alpine
+COPY --from=0 /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

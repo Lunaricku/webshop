@@ -19,13 +19,19 @@ function App() {
   };
 
   const createPost = async () => {
-    await fetch('http://localhost:8080/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ title, content })
-    });
-    fetchPosts();
+    try {
+      const res = await fetch('http://localhost:8080/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content })
+      });
+      if (!res.ok) throw new Error('Failed to create post');
+      fetchPosts();
+    } catch (err) {
+      alert('Có lỗi khi tạo bài viết: ' + err.message);
+    }
   };
+  
 
   const fetchPosts = async () => {
     const res = await fetch('http://localhost:8080/');
