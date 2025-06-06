@@ -13,12 +13,13 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        dir('/var/jenkins_home/workspace/webshop')
-        sh """
-          docker-compose -f docker-compose.yml down
-          docker-compose -f docker-compose.yml up -d --build
-        """
-        sh 'docker ps --format "table {{$Names}}\t{{$Image}}\t{{$Ports}}"'
+        dir('/var/jenkins_home/workspace/webshop') {
+          sh """
+            docker-compose down
+            docker-compose up -d --build
+          """
+          sh 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"'
+        }
       }
     }
   }
